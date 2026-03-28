@@ -1,0 +1,17 @@
+direction_icon_positions: null
+low_pressure_color: null
+original_rod_color: null
+pressure_indicator_pos: null
+retry_button_center: null
+rod_position: null
+start_fishing_pos:
+- 1469
+- 782
+tijian_pos: null
+use_bait_button_pos: null
+window_size:
+- 163
+- 33
+- 1602
+- 946
+window_title: 雷电模拟器

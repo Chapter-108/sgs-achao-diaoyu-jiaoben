@@ -1,0 +1,14 @@
+default:
+  window_size:
+  - 163
+  - 33
+  - 1602
+  - 946
+  window_title: 雷电模拟器
+test_local:
+  window_size:
+  - 163
+  - 33
+  - 1602
+  - 946
+  window_title: 雷电模拟器
