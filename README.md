@@ -6,36 +6,19 @@
 初版代码来源于 https://github.com/KeNanXiaoLin/sgsminigame
 
 ## **使用步骤**
+1.**运行脚本**: 
 
-1.**克隆代码** 
-
-将代码克隆到本地电脑。
-
-```bash
-git clone https://github.com/Elevo4/TKAutoFisher.git
-```
-
-2.**安装环境**
-
-下载 Python 3.13.0，安装 `requirements.txt` 中的库。
-
-```bash
-pip3 install -r requirements.txt
-```
-
-3.**运行脚本**: 
-
-在模拟器中打开三国杀阿超钓鱼界面，运行 `main.py` 文件，即可开始自动钓鱼。
+在模拟器中打开三国杀阿超钓鱼界面，运行 `main.py或start.bat` 文件，即可开始自动钓鱼。
 
 ![image](images/description_images/diaoyu.png)
 
-就是这个界面，然后就可以再次运行main.py就可以了。
+就是这个界面。
 
 **配置文件中的参数说明**:
 
 **生成配置文件**
 
-运行 `main.py` 文件，会在 `generate/config.yaml` 生成配置文件。
+运行启动文件，会在 `generate/config.yaml` 生成配置文件。
 
 只有两个默认参数，模拟器大小和模拟器名称.
 
@@ -43,10 +26,20 @@ pip3 install -r requirements.txt
 
 比如使用的是雷电模拟器，名称就是雷电模拟器，如果是的，就个改名就可以了
 
-## 统一入口说明
+## start.bat 说明
 
-- 当前统一主入口为：`main.py`
-- 历史重复入口与冗余配置文件已移除，后续仅维护 `main.py` 与 `setting.py`。
+`start.bat` 是项目的快速启动脚本，适合直接双击运行，不用手动输入命令。
+
+- 双击后会显示菜单：
+  - `1` 正常启动（默认配置）
+  - `2` 检查模式（默认配置）
+  - `3` 退出
+- 也支持命令行透传参数给 `main.py`，例如：
+
+```bash
+start.bat --检查模式 --配置 default
+start.bat --窗口标题 "雷电模拟器"
+```
 
 ## 命令行参数
 
