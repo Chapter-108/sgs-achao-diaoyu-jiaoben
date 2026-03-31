@@ -14,8 +14,8 @@ from window_manager import WindowManager
 from image_processor import ImageProcessor
 from ui_recognizer import FishingUIRecognizer
 import logging
-
-
+ 
+ 
 class FishState(Enum):
     """钓鱼游戏的状态枚举"""
     START_FISHING = auto()  # 开始钓鱼
@@ -27,8 +27,8 @@ class FishState(Enum):
     INSTANT_KILL = auto()   # 秒杀
     END_FISHING = auto()    # 结束钓鱼
     EXIT = auto()           # 退出
-
-
+ 
+ 
 @dataclass
 class GameConfig:
     """游戏配置数据类"""
@@ -43,8 +43,8 @@ class GameConfig:
     retry_button_center: Optional[Tuple[int, int]] = None  # 再来一次按钮的中心点坐标
     use_bait_button_pos: Optional[Tuple[int, int]] = None  # 使用鱼饵按钮的位置
     tijian_pos: Optional[Tuple[int, int]] = None  # 提竿按钮位置
-
-
+ 
+ 
 class MouseController:
     """鼠标控制类，处理所有鼠标操作"""
     
@@ -60,8 +60,8 @@ class MouseController:
     def click(position: Tuple[int, int]) -> None:
         """点击指定位置"""
         pyautogui.click(position)
-
-
+ 
+ 
 class FishingStateManager:
     """负责状态管理和转换的类"""
     
@@ -116,7 +116,7 @@ class FishingStateManager:
                     self.current_state = FishState.END_FISHING
                 elif self.ui_recognizer.check_instant_kill_ui(current_img):
                     self.current_state = FishState.INSTANT_KILL
-
+ 
             case FishState.INSTANT_KILL:
                 if self.ui_recognizer.check_end_fishing_ui(current_img):
                     self.current_state = FishState.END_FISHING
@@ -138,7 +138,7 @@ class FishingStateManager:
         Args:
             current_img: 当前屏幕截图
         """
-
+ 
         state = FishState.START_FISHING
         # 检查各个UI界面，设置对应的状态
         if self.ui_recognizer.check_start_fishing_ui(current_img):
@@ -163,13 +163,13 @@ class FishingStateManager:
             
         logging.info(f"初始页面状态调整为: {state}")
         return state
-
+ 
 class FishingPositionDetector:
     """负责位置检测的类"""
     
     def __init__(self, config: GameConfig):
         self.config = config
-
+ 
     def _find_template_with_retry(
         self,
         template_path: str,
@@ -182,7 +182,7 @@ class FishingPositionDetector:
         """重试模板匹配，降低瞬时识别失败造成的卡死概率。"""
         region = screenshot_region or self.config.window_size
         template = ImageProcessor.load_template(template_path)
-
+ 
         last_error: Optional[Exception] = None
         for _ in range(retries):
             try:
@@ -193,7 +193,7 @@ class FishingPositionDetector:
             except Exception as e:
                 last_error = e
                 time.sleep(retry_delay)
-
+ 
         raise RuntimeError(
             f"模板识别失败: {template_path}, 重试次数={retries}, 最后错误={last_error}"
         )
@@ -236,7 +236,7 @@ class FishingPositionDetector:
             pos[1] + self.config.window_size[1]
         )
         ConfigManager.write_yaml(self.config.__dict__)
-
+ 
     def detect_use_button_pos(self) -> None:
         """检测使用按钮位置"""
         pos = self._find_template_with_retry(str(Config.USE_BUTTON))
@@ -271,20 +271,20 @@ class FishingPositionDetector:
             )
         
         ConfigManager.write_yaml(self.config.__dict__)
-
+ 
     def _get_top_half_region(self) -> Tuple[int, int, int, int]:
         """获取窗口上半区域(x, y, width, height)。"""
         x, y, w, h = self.config.window_size
         top_h = h // 2
         return (x, y, w, top_h)
-
+ 
     def _get_bottom_half_region(self) -> Tuple[int, int, int, int]:
         """获取窗口下半区域(x, y, width, height)。"""
         x, y, w, h = self.config.window_size
         top_h = h // 2
         return (x, y + top_h, w, h - top_h)
-
-
+ 
+ 
 class FishingActionExecutor:
     """负责执行具体的钓鱼动作的类"""
     
@@ -330,11 +330,11 @@ class FishingActionExecutor:
         current_time = time.time()
         click_interval = Config.FISHING_CLICK_INTERVAL
         pressure_check_interval = click_interval * 3
-
+ 
         # 检查收杆
         if current_time - self.rod_retrieve_time > Config.ROD_RETRIEVE_INTERVAL:
             self.handle_rod_retrieve()
-
+ 
         # 检查点击操作
         if current_time - self.fishing_click_time >= click_interval:
             current_pressure_color = pyautogui.pixel(*self.config.pressure_indicator_pos)
@@ -345,7 +345,7 @@ class FishingActionExecutor:
             else:
                 MouseController.click(self.config.start_fishing_pos) 
                 self.fishing_click_time = current_time
-
+ 
         # 拉竿检查
         current_rod_color = pyautogui.pixel(*self.config.rod_position)
         if current_rod_color != self.config.original_rod_color:
@@ -422,8 +422,8 @@ class FishingActionExecutor:
                 average_y = int(sum([x[1] for x in point_set]) / len(point_set))
                 result_points.append((average_x, average_y))
         return result_points
-
-
+ 
+ 
 class FishingGame:
     """钓鱼游戏主类"""
     
@@ -442,7 +442,7 @@ class FishingGame:
         self.should_exit = Event()
         self.state_check_thread: Optional[Thread] = None
         self.state_check_error: Optional[Exception] = None
-
+ 
         ImageProcessor.preload_all_templates()
         current_img = ImageProcessor.get_screenshot(self.config.window_size)
         self.state_manager = FishingStateManager(current_img)
@@ -456,7 +456,7 @@ class FishingGame:
             # 兼容历史配置：丢弃当前数据类未定义字段。
             allowed_keys = set(GameConfig.__annotations__.keys())
             config_dict = {k: v for k, v in config_dict.items() if k in allowed_keys}
-
+ 
         if self._profile_name:
             profiles = ConfigManager.read_profiles()
             profile_data = profiles.get(self._profile_name)
@@ -473,7 +473,7 @@ class FishingGame:
         # 设置默认窗口标题
         if 'window_title' not in config_dict:
             config_dict['window_title'] = Config.WINDOW_TITLE
-
+ 
         # 每次启动强制清空所有检测位置，防止残缺配置导致卡死
         config_dict['window_title'] = self._window_title_override or config_dict['window_title']
         config_dict['window_size'] = self._window_size_override or config_dict.get('window_size', Config.WINDOW_SIZE)
@@ -489,7 +489,7 @@ class FishingGame:
         config_dict = self._normalize_config_types(config_dict)
         
         return GameConfig(**config_dict)
-
+ 
     @staticmethod
     def _normalize_config_types(config_dict: Dict[str, Any]) -> Dict[str, Any]:
         """标准化配置类型，兼容 list/tuple 与旧配置。"""
@@ -503,7 +503,7 @@ class FishingGame:
             "tijian_pos",
         }
         tuple3_fields = {"low_pressure_color", "original_rod_color"}
-
+ 
         for field in tuple4_fields:
             value = config_dict.get(field)
             if isinstance(value, list):
@@ -516,7 +516,7 @@ class FishingGame:
             value = config_dict.get(field)
             if isinstance(value, list):
                 config_dict[field] = tuple(value)
-
+ 
         positions = config_dict.get("direction_icon_positions")
         if isinstance(positions, dict):
             normalized = {}
@@ -526,12 +526,14 @@ class FishingGame:
                 else:
                     normalized[key] = value
             config_dict["direction_icon_positions"] = normalized
-
+ 
         return config_dict
-
+ 
     def _get_state_check_region(self, state: FishState) -> Tuple[int, int, int, int]:
         x, y, w, h = self.config.window_size
-        if state in (FishState.FISHING, FishState.INSTANT_KILL, FishState.SPEAR_FISH):
+        # 仅 SPEAR_FISH 限制上半屏：tijian 按钮在上半屏且无需检测下半屏元素。
+        # FISHING / INSTANT_KILL 需要检测下半屏的 retry 按钮，不能裁剪。
+        if state == FishState.SPEAR_FISH:
             return (x, y, w, h // 2)
         return self.config.window_size
     
@@ -543,13 +545,14 @@ class FishingGame:
         except Exception:
             keyboard.unhook_all()
             keyboard.add_hotkey('esc', self.should_exit.set, suppress=True)
-
+ 
         try:
             while not self.should_exit.is_set():
-                state = self.state_manager.current_state
-                check_interval = 0.01 if state in (FishState.FISHING, FishState.SPEAR_FISH) else 0.05
+                check_interval = 0.01 if self.state_manager.current_state in (FishState.FISHING, FishState.SPEAR_FISH) else 0.05
                 time.sleep(check_interval)
-                region = self._get_state_check_region(state)
+                # sleep 后重新取最新 state，避免用旧状态算出错误截图区域
+                current_state = self.state_manager.current_state
+                region = self._get_state_check_region(current_state)
                 current_img = ImageProcessor.get_screenshot(region)
                 self.state_manager.update_state(current_img)
         except Exception as e:
@@ -609,7 +612,7 @@ class FishingGame:
                     self.position_detector.detect_direction_icons()
                 self.action_executor.handle_direction_sequence()
                 self.state_manager.first_instant_kill = False
-
+ 
     def run(self) -> None:
         """运行游戏主循环"""
         try:
@@ -635,48 +638,48 @@ class FishingGame:
             self.should_exit.set()
             if self.state_check_thread and self.state_check_thread.is_alive():
                 self.state_check_thread.join(timeout=2)
-
-
+ 
+ 
 def resolve_runtime_window_config(args: argparse.Namespace) -> Tuple[str, Tuple[int, int, int, int]]:
     """解析最终窗口配置（默认 < 配置 < 命令行）。"""
     window_title = Config.WINDOW_TITLE
     window_size: Tuple[int, int, int, int] = Config.WINDOW_SIZE
-
+ 
     if args.profile:
         profiles = ConfigManager.read_profiles()
         profile_data = profiles.get(args.profile)
         if not isinstance(profile_data, dict):
             available = ", ".join(sorted(profiles.keys()))
             raise ValueError(f"未找到配置: {args.profile}，可用配置: {available or '无'}")
-
+ 
         title_from_profile = profile_data.get("window_title")
         if isinstance(title_from_profile, str) and title_from_profile.strip():
             window_title = title_from_profile
-
+ 
         size_from_profile = profile_data.get("window_size")
         if isinstance(size_from_profile, (list, tuple)) and len(size_from_profile) == 4:
             window_size = tuple(int(v) for v in size_from_profile)
-
+ 
     if args.window_title:
         window_title = args.window_title
     if args.window_size:
         window_size = args.window_size
-
+ 
     return window_title, window_size
-
-
+ 
+ 
 def run_check_mode(args: argparse.Namespace) -> bool:
     """运行启动前体检。"""
     print("== 检查模式 ==")
     all_ok = True
-
+ 
     try:
         Config.ensure_runtime_ready()
         print("[通过] 资源文件检查通过")
     except Exception as e:
         all_ok = False
         print(f"[失败] 资源文件检查失败: {e}")
-
+ 
     try:
         window_title, window_size = resolve_runtime_window_config(args)
         print(f"[通过] 窗口配置解析通过: 标题={window_title}, 区域={window_size}")
@@ -684,7 +687,7 @@ def run_check_mode(args: argparse.Namespace) -> bool:
         all_ok = False
         print(f"[失败] 窗口配置解析失败: {e}")
         return all_ok
-
+ 
     try:
         hwnd = WindowManager.find_window(window_title)
         if not hwnd:
@@ -696,16 +699,16 @@ def run_check_mode(args: argparse.Namespace) -> bool:
     except Exception as e:
         all_ok = False
         print(f"[失败] 窗口检查失败: {e}")
-
+ 
     print("检查结果:", "通过" if all_ok else "失败")
     return all_ok
-
-
+ 
+ 
 def main():
     """主函数"""
     try:
         args = parse_args()
-
+ 
         if args.save_profile:
             window_title, window_size = resolve_runtime_window_config(args)
             ConfigManager.save_profile(args.save_profile, window_title, window_size)
@@ -714,13 +717,13 @@ def main():
             print(f"- 窗口区域: {window_size}")
             if not args.check_mode:
                 return
-
+ 
         if args.check_mode:
             is_ok = run_check_mode(args)
             if not is_ok:
                 raise SystemExit(1)
             return
-
+ 
         Config.ensure_runtime_ready()
         game = FishingGame(
             window_title=args.window_title,
@@ -731,8 +734,8 @@ def main():
     except Exception as e:
         logging.error(f"程序运行出错: {str(e)}")
         raise
-
-
+ 
+ 
 def parse_window_size(value: str) -> Tuple[int, int, int, int]:
     """解析窗口区域参数：x,y,width,height。"""
     parts = [item.strip() for item in value.split(",")]
@@ -745,8 +748,8 @@ def parse_window_size(value: str) -> Tuple[int, int, int, int]:
     if w <= 0 or h <= 0:
         raise argparse.ArgumentTypeError("窗口区域的 width/height 必须大于 0")
     return (x, y, w, h)
-
-
+ 
+ 
 def parse_args() -> argparse.Namespace:
     """解析命令行参数。"""
     parser = argparse.ArgumentParser(description="TKAutoFisher 自动钓鱼脚本")
@@ -783,7 +786,7 @@ def parse_args() -> argparse.Namespace:
         help="执行启动前检查（资源、配置、窗口）并退出",
     )
     return parser.parse_args()
-
-
+ 
+ 
 if __name__ == '__main__':
     main()
